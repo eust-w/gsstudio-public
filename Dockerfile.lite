@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1
+# CPU-only API and UI demo. Build web/dist before building this image.
+# The mock pipeline does not generate real model output.
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    GSSTUDIO_DATA_DIR=/data/tasks \
+    GSSTUDIO_PORT=8000 \
+    GSSTUDIO_MOCK_PIPELINE=true \
+    GSSTUDIO_MANAGE_VLLM=false
+
+WORKDIR /app
+COPY requirements-runtime.txt ./requirements-runtime.txt
+COPY deploy/requirements-security.txt ./deploy/requirements-security.txt
+RUN pip install --no-cache-dir --index-url https://pypi.org/simple -r requirements-runtime.txt
+COPY server/ ./server/
+# Build with: cd web && npm ci && npm run build
+COPY web/dist/ ./web/dist/
+COPY LICENSE NOTICE THIRD_PARTY_NOTICES.md /app/
+COPY third_party/licenses/ /app/third_party/licenses/
+
+EXPOSE 8000
+CMD ["python", "-m", "uvicorn", "server.main:app", "--host", "0.0.0.0", "--port", "8000"]

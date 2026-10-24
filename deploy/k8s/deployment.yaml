@@ -1,0 +1,65 @@
+# CPU-only mock deployment. Set an image built from Dockerfile.lite.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gsstudio
+  namespace: gsstudio
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gsstudio
+  template:
+    metadata:
+      labels:
+        app: gsstudio
+    spec:
+      containers:
+        - name: gsstudio
+          image: example.invalid/your-account/gsstudio:demo
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: GSSTUDIO_MOCK_PIPELINE
+              value: "true"
+            - name: GSSTUDIO_MANAGE_VLLM
+              value: "false"
+            - name: GSSTUDIO_DATA_DIR
+              value: "/data/tasks"
+            - name: GSSTUDIO_BASIC_AUTH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: gsstudio-basic-auth
+                  key: username
+            - name: GSSTUDIO_BASIC_AUTH_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: gsstudio-basic-auth
+                  key: password
+          resources:
+            requests:
+              cpu: "1"
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 4Gi
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 15
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: gsstudio-workdir

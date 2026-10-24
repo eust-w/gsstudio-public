@@ -1,0 +1,25 @@
+# Adjust capacity/storageClassName for your cluster before applying.
+# Both caches (HF and Torch) are stored on the models PVC under /models.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gsstudio-models
+  namespace: gsstudio
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 500Gi
+  # storageClassName: your-storage-class
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gsstudio-workdir
+  namespace: gsstudio
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 500Gi
+  # storageClassName: your-storage-class

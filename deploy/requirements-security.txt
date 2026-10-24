@@ -1,0 +1,13 @@
+# Preserved generic package baseline from the application snapshot.
+# These pins do not imply all current security advisories are resolved;
+# see SECURITY.md for the release audit and known limitations.
+# Keep model/runtime compatibility separate from these generic constraints.
+click==8.4.2
+filelock==3.32.2
+msgpack==1.2.1
+pip==26.2.1
+python-dotenv==1.2.2
+python-multipart==0.0.32
+requests==2.34.2
+setuptools==84.0.0
+urllib3==2.7.0
